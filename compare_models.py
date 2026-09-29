@@ -16,14 +16,14 @@ MODELS_TO_COMPARE = [
         "name": "tiny_unet",
         "base_channels": 16,
     },
-    {
-        "name": "depthwise_unet",
-        "base_channels": 16,
-    },
-    {
-        "name": "unet",
-        "base_channels": 32,
-    },
+    # {
+    #     "name": "depthwise_unet",
+    #     "base_channels": 16,
+    # },
+    # {
+    #     "name": "unet",
+    #     "base_channels": 32,
+    # },
     {
         "name": "monai_segresnet",
         "base_channels": 16,
@@ -32,16 +32,20 @@ MODELS_TO_COMPARE = [
         "name": "monai_flexible_unet_b0",
         "base_channels": 16,
     },
-    {
-        "name": "monai_flexible_unet_b1",
-        "base_channels": 16,
-    },
-    {
-        "name": "lraspp_mobilenet",
-        "base_channels": 16,
-    },
+    # {
+    #     "name": "monai_flexible_unet_b1",
+    #     "base_channels": 16,
+    # },
+    # {
+    #     "name": "lraspp_mobilenet",
+    #     "base_channels": 16,
+    # },
     {
         "name": "fast_scnn",
+        "base_channels": 16,
+    },
+{
+        "name": "monai_unet",
         "base_channels": 16,
     },
 ]
@@ -131,17 +135,20 @@ def main():
                 "primary_mean_dice"
             )
 
+            # row["test_ptm_dice"] = metrics.get(
+            #     "ptm", {}
+            # ).get("dice")
+
+            # row["test_nptm_dice"] = metrics.get(
+            #     "nptm", {}
+            # ).get("dice")
+            #
+            # row["test_merged_tm_dice"] = metrics.get(
+            #     "merged_tm_dice"
+            # )
             row["test_ptm_dice"] = metrics.get(
-                "ptm", {}
+                "tm", {}
             ).get("dice")
-
-            row["test_nptm_dice"] = metrics.get(
-                "nptm", {}
-            ).get("dice")
-
-            row["test_merged_tm_dice"] = metrics.get(
-                "merged_tm_dice"
-            )
 
         rows.append(row)
 

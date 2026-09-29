@@ -78,17 +78,14 @@ USE_ONLY_PRIMARY_CLASSES = True
 
 CLASS_DEFINITIONS = [
     {
-        "name": "tm",
-        "sources": [
-            {
-                "folder": "Pigmented Trabecular Meshwork",
-                "suffix": "_PTM",
-            },
-            {
-                "folder": "Non-pigmented Trabecular Meshwork",
-                "suffix": "_NPTM",
-            },
-        ],
+        "name": "ptm",
+        "folder": "Pigmented Trabecular Meshwork",
+        "suffix": "_PTM",
+    },
+    {
+        "name": "nptm",
+        "folder": "Non-pigmented Trabecular Meshwork",
+        "suffix": "_NPTM",
     },
 ]
 
@@ -109,8 +106,8 @@ TEST_SPLIT = "Test"
 
 
 # Original images are 1280x960. This preserves the 4:3 ratio.
-IMAGE_HEIGHT = 384 * 2
-IMAGE_WIDTH = 512 * 2
+IMAGE_HEIGHT = 384 #* 2
+IMAGE_WIDTH = 512 #* 2
 
 
 # If PTM and NPTM overlap, ignore those pixels during training.
@@ -122,15 +119,15 @@ SKIP_INCOMPLETE_SAMPLES = False
 # =========================
 # TRAINING
 # =========================
-# MODEL_NAME = "unet"
+# MODEL_NAME = "tiny_unet"
 # depthwise_unet tiny_unet unet
 # monai update
 USE_PRETRAINED_WEIGHTS = True
 # MODEL_NAME = "monai_unet"
 # MODEL_NAME = "monai_basic_unet"
 # MODEL_NAME = "monai_segresnet"
-MODEL_NAME = "monai_flexible_unet_b0"
-# MODEL_NAME = "monai_flexible_unet_b1"
+# MODEL_NAME = "monai_flexible_unet_b0"
+MODEL_NAME = "monai_flexible_unet_b1"
 # MODEL_NAME = "lraspp_mobilenet"
 # MODEL_NAME = "fast_scnn"
 #####
@@ -138,15 +135,15 @@ MODEL_NAME = "monai_flexible_unet_b0"
 
 BASE_CHANNELS = 16 # 16
 
-BATCH_SIZE = 8
+BATCH_SIZE = 4
 NUM_WORKERS = 4
 EPOCHS = 100
 
 LEARNING_RATE = 1e-3
 WEIGHT_DECAY = 1e-4
 
-DICE_LOSS_WEIGHT = 0.7
-CROSS_ENTROPY_WEIGHT = 0.3
+DICE_LOSS_WEIGHT = 0.9
+CROSS_ENTROPY_WEIGHT = 0.1
 
 USE_AMP = False
 EARLY_STOPPING_PATIENCE = 25

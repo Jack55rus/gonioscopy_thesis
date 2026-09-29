@@ -416,47 +416,27 @@ class JointTransform:
             std=[0.229, 0.224, 0.225],
         )
 
-        binary_masks = np.stack(
-            [
-                np.asarray(mask) > 0
-                for mask in masks
-            ],
-            axis=0,
+        binary_masks = [
+            np.asarray(mask) > 0
+            for mask in masks
+        ]
+
+        # PTM and NPTM are both treated as a single TM class.
+        tm_mask = np.logical_or(
+            binary_masks[0],  # PTM
+            binary_masks[1],  # NPTM
         )
 
-        height, width = binary_masks.shape[1:]
+        height, width = tm_mask.shape
 
         target = np.zeros(
             (height, width),
             dtype=np.uint8,
         )
 
-        number_of_active_classes = (
-            binary_masks.sum(axis=0)
-        )
-
-        # Assign class indices 1, 2, 3...
-        for class_index, binary_mask in enumerate(
-            binary_masks,
-            start=1,
-        ):
-            valid_class_pixels = (
-                binary_mask
-                & (number_of_active_classes == 1)
-            )
-
-            target[valid_class_pixels] = class_index
-
-        # Ignore pixels assigned to multiple structures.
-        overlapping_pixels = (
-            number_of_active_classes > 1
-        )
-
-        if config.IGNORE_OVERLAPS:
-            target[
-                overlapping_pixels
-            ] = config.IGNORE_INDEX
-
+        # 0 = background
+        # 1 = trabecular meshwork (PTM + NPTM)
+        target[tm_mask] = 1
         return (
             image,
             torch.from_numpy(

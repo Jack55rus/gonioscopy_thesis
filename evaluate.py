@@ -67,7 +67,6 @@ def main():
 
     save_json(metrics, config.METRICS_PATH)
 
-    # print(metrics)
     print(
         "Primary PTM/NPTM Dice:",
         metrics["primary_mean_dice"],
@@ -79,18 +78,8 @@ def main():
     )
 
     print(
-        "PTM Dice:",
-        metrics["ptm"]["dice"],
-    )
-
-    print(
-        "NPTM Dice:",
-        metrics["nptm"]["dice"],
-    )
-
-    print(
-        "Merged TM Dice:",
-        metrics["merged_tm_dice"],
+        "TM Dice:",
+        metrics["tm"]["dice"],
     )
     print(f"Saved: {config.METRICS_PATH}")
 

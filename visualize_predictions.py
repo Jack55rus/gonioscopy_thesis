@@ -17,8 +17,7 @@ NUMBER_OF_SAMPLES = 20
 
 CLASS_NAMES = {
     0: "Background",
-    1: "PTM",
-    2: "NPTM",
+    1: "TM",
 }
 
 

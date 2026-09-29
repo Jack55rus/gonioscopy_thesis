@@ -291,48 +291,4 @@ def metrics_from_confusion_matrix(
         cm.diag().sum() / total
     ).item()
 
-    ptm_index = config.CLASS_NAMES.index("ptm")
-    nptm_index = config.CLASS_NAMES.index("nptm")
-
-    tm_indices = [ptm_index, nptm_index]
-
-    merged_true_positive = cm[
-        tm_indices,
-        :,
-    ][:, tm_indices].sum()
-
-    non_tm_indices = [
-        index
-        for index in range(config.NUM_CLASSES)
-        if index not in tm_indices
-    ]
-
-    merged_false_positive = cm[
-        non_tm_indices,
-        :,
-    ][:, tm_indices].sum()
-
-    merged_false_negative = cm[
-        tm_indices,
-        :,
-    ][:, non_tm_indices].sum()
-
-    result["merged_tm_dice"] = (
-        2.0 * merged_true_positive
-        / (
-            2.0 * merged_true_positive
-            + merged_false_positive
-            + merged_false_negative
-        ).clamp_min(1)
-    ).item()
-
-    result["merged_tm_iou"] = (
-        merged_true_positive
-        / (
-            merged_true_positive
-            + merged_false_positive
-            + merged_false_negative
-        ).clamp_min(1)
-    ).item()
-
     return result

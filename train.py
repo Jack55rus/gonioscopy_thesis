@@ -175,11 +175,7 @@ def main():
             "validation_all_classes_dice": validation_metrics[
                 "all_classes_mean_dice"
             ],
-            "validation_ptm_dice": validation_metrics["ptm"]["dice"],
-            "validation_nptm_dice": validation_metrics["nptm"]["dice"],
-            "validation_merged_tm_dice": validation_metrics[
-                "merged_tm_dice"
-            ],
+            "validation_tm_dice": validation_metrics["tm"]["dice"],
             "learning_rate": optimizer.param_groups[0]["lr"],
         }
 
@@ -194,8 +190,7 @@ def main():
             f"train_loss={training_loss:.4f} "
             f"val_loss={validation_metrics['loss']:.4f} "
             f"val_dice={validation_dice:.4f} "
-            f"ptm={validation_metrics['ptm']['dice']:.4f} "
-            f"nptm={validation_metrics['nptm']['dice']:.4f}"
+            f"validation_tm_dice: {validation_metrics['tm']['dice']}",
         )
 
         if validation_dice > best_validation_dice:
