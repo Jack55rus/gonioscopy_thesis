@@ -1,4 +1,5 @@
 from monai.networks.nets import BasicUNet, FlexibleUNet, SegResNet, UNet
+import config
 
 
 def create_monai_unet(
@@ -7,7 +8,7 @@ def create_monai_unet(
 ):
     return UNet(
         spatial_dims=2,
-        in_channels=3,
+        in_channels=config.INPUT_CHANNELS,
         out_channels=num_classes,
         channels=(
             base_channels,
@@ -29,7 +30,7 @@ def create_monai_basic_unet(
 ):
     return BasicUNet(
         spatial_dims=2,
-        in_channels=3,
+        in_channels=config.INPUT_CHANNELS,
         out_channels=num_classes,
         features=(
             base_channels,
@@ -53,7 +54,7 @@ def create_monai_segresnet(
     return SegResNet(
         spatial_dims=2,
         init_filters=initial_filters,
-        in_channels=3,
+        in_channels=config.INPUT_CHANNELS,
         out_channels=num_classes,
         dropout_prob=0.0,
         blocks_down=(1, 2, 2, 4),
@@ -71,7 +72,7 @@ def create_monai_flexible_unet_b0(
 ):
     return FlexibleUNet(
         spatial_dims=2,
-        in_channels=3,
+        in_channels=config.INPUT_CHANNELS,
         out_channels=num_classes,
         backbone="efficientnet-b0",
         pretrained=pretrained,
@@ -91,7 +92,7 @@ def create_monai_flexible_unet_b1(
 ):
     return FlexibleUNet(
         spatial_dims=2,
-        in_channels=3,
+        in_channels=config.INPUT_CHANNELS,
         out_channels=num_classes,
         backbone="efficientnet-b1",
         pretrained=pretrained,
@@ -111,7 +112,7 @@ def create_monai_flexible_unet_b4(
 ):
     return FlexibleUNet(
         spatial_dims=2,
-        in_channels=3,
+        in_channels=config.INPUT_CHANNELS,
         out_channels=num_classes,
         backbone="efficientnet-b4",
         pretrained=pretrained,

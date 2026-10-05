@@ -10,7 +10,7 @@ from PIL import Image, ImageEnhance, ImageFilter
 from torch.utils.data import Dataset
 from torchvision.transforms import functional as TF
 from torchvision.transforms.functional import InterpolationMode
-
+import cv2
 import config
 from metadata_features import encode_metadata, parse_filename_metadata
 
@@ -187,12 +187,20 @@ class JointTransform:
             for mask in masks
         ]
 
+        gray = np.asarray(image.convert("L"))
+        clahe = cv2.createCLAHE(
+            clipLimit=2.0,
+            tileGridSize=(8, 8),
+        ).apply(gray)
+        clahe = torch.from_numpy(clahe).float().unsqueeze(0) / 255.0
+
         image = TF.to_tensor(image)
         image = TF.normalize(
             image,
             mean=[0.485, 0.456, 0.406],
             std=[0.229, 0.224, 0.225],
         )
+        image = torch.cat([image, clahe], dim=0)
 
         binary_masks = [
             np.asarray(mask) > 0

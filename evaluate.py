@@ -66,7 +66,7 @@ def main():
             #     min_size=config.POSTPROCESS_MIN_OBJECT_SIZE,
             #     max_distance=config.POSTPROCESS_MAX_DISTANCE,
             # )
-            predictions = torch.from_numpy(predictions)
+            # predictions = torch.from_numpy(predictions)
 
             update_confusion_matrix(
                 confusion_matrix,

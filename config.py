@@ -127,8 +127,8 @@ USE_PRETRAINED_WEIGHTS = True
 # MODEL_NAME = "monai_basic_unet"
 # MODEL_NAME = "monai_segresnet"
 # MODEL_NAME = "monai_flexible_unet_b0"
-# MODEL_NAME = "monai_flexible_unet_b1"
-MODEL_NAME = "monai_flexible_unet_b4"
+MODEL_NAME = "monai_flexible_unet_b1"
+# MODEL_NAME = "monai_flexible_unet_b4"
 # MODEL_NAME = "lraspp_mobilenet"
 # MODEL_NAME = "fast_scnn"
 #####
@@ -208,4 +208,6 @@ USE_PRETRAINED_WEIGHTS = True
 # A lower LR is usually safer for pretrained encoders than 1e-3.
 LEARNING_RATE = 1e-4
 WEIGHT_DECAY = 5e-4
+
+INPUT_CHANNELS = 4
 

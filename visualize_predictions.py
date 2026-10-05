@@ -15,6 +15,7 @@ NUMBER_OF_SAMPLES = 20
 TM_CLASS_ID = 1
 
 def denormalize(image: torch.Tensor) -> np.ndarray:
+    image = image[:3]
     mean = torch.tensor([0.485, 0.456, 0.406])[:, None, None]
     std = torch.tensor([0.229, 0.224, 0.225])[:, None, None]
     image = image.cpu() * std + mean
