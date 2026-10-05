@@ -10,7 +10,7 @@ from metrics import (
 )
 from models.factory import create_model
 from utils.common import count_parameters, save_json
-
+from postprocess import postprocess_prediction
 
 def main():
     dataset = TrabecularMeshworkDataset(
@@ -54,6 +54,19 @@ def main():
 
             logits = model(images)
             predictions = logits.argmax(dim=1)
+
+            # primary_class_ids = [
+            #     config.CLASS_NAMES.index(class_name)
+            #     for class_name in config.PRIMARY_CLASS_NAMES
+            # ]
+            # predictions = predictions.cpu().numpy()
+            # predictions = postprocess_prediction(
+            #     prediction=predictions,
+            #     class_ids=primary_class_ids,
+            #     min_size=config.POSTPROCESS_MIN_OBJECT_SIZE,
+            #     max_distance=config.POSTPROCESS_MAX_DISTANCE,
+            # )
+            predictions = torch.from_numpy(predictions)
 
             update_confusion_matrix(
                 confusion_matrix,

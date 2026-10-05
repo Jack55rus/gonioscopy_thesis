@@ -127,7 +127,8 @@ USE_PRETRAINED_WEIGHTS = True
 # MODEL_NAME = "monai_basic_unet"
 # MODEL_NAME = "monai_segresnet"
 # MODEL_NAME = "monai_flexible_unet_b0"
-MODEL_NAME = "monai_flexible_unet_b1"
+# MODEL_NAME = "monai_flexible_unet_b1"
+MODEL_NAME = "monai_flexible_unet_b4"
 # MODEL_NAME = "lraspp_mobilenet"
 # MODEL_NAME = "fast_scnn"
 #####
@@ -139,11 +140,11 @@ BATCH_SIZE = 4
 NUM_WORKERS = 4
 EPOCHS = 100
 
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-4
 WEIGHT_DECAY = 1e-4
 
-DICE_LOSS_WEIGHT = 0.9
-CROSS_ENTROPY_WEIGHT = 0.1
+DICE_LOSS_WEIGHT = 0.7
+CROSS_ENTROPY_WEIGHT = 0.3
 
 USE_AMP = False
 EARLY_STOPPING_PATIENCE = 25
@@ -159,16 +160,52 @@ CONTRAST_JITTER = 0.15
 # =========================
 # OUTPUTS
 # =========================
-OUTPUT_DIR = Path("outputs")
+OUTPUT_DIR = Path("outputs/eye_info_branch")
 CHECKPOINT_PATH = OUTPUT_DIR / f"{MODEL_NAME}_best.pt"
 METRICS_PATH = OUTPUT_DIR / f"{MODEL_NAME}_test_metrics.json"
 BENCHMARK_PATH = OUTPUT_DIR / f"{MODEL_NAME}_benchmark.json"
 
 SEED = 42
 
-POSTPROCESS_MIN_OBJECT_SIZE = 10_000
+POSTPROCESS_MIN_OBJECT_SIZE = 500
 
 # After small-object removal, find the largest object of each class.
 # Any other component farther than this minimum Euclidean distance
 # from the largest object is removed.
 POSTPROCESS_MAX_DISTANCE = 100
+
+
+
+# =========================
+# QUALITY / METADATA
+# =========================
+
+USE_METADATA = True
+
+# Filename metadata:
+# DS01_01 = eye ID (grouping only; NEVER fed to the network)
+# GS-Face04 = acquisition portion
+# Shot08 = selected shot
+NUMBER_OF_FACES = 16
+MAX_SHOT_NUMBER = 16
+METADATA_REFINER_CHANNELS = 32
+
+# Stronger but still anatomy-preserving augmentation.
+# Start here; ablate each group in the thesis.
+HORIZONTAL_FLIP_PROBABILITY = 0.5
+MAX_ROTATION_DEGREES = 50
+MAX_TRANSLATE_FRACTION = 0.04
+MAX_SCALE_JITTER = 0.10
+BRIGHTNESS_JITTER = 0.25
+CONTRAST_JITTER = 0.25
+SATURATION_JITTER = 0.15
+BLUR_PROBABILITY = 0.15
+MAX_BLUR_RADIUS = 1.2
+
+# For limited data + pretrained encoder:
+USE_PRETRAINED_WEIGHTS = True
+
+# A lower LR is usually safer for pretrained encoders than 1e-3.
+LEARNING_RATE = 1e-4
+WEIGHT_DECAY = 5e-4
+

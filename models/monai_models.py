@@ -103,3 +103,23 @@ def create_monai_flexible_unet_b1(
         interp_mode="bilinear",
         is_pad=True,
     )
+
+
+def create_monai_flexible_unet_b4(
+    num_classes: int,
+    pretrained: bool = False,
+):
+    return FlexibleUNet(
+        spatial_dims=2,
+        in_channels=3,
+        out_channels=num_classes,
+        backbone="efficientnet-b4",
+        pretrained=pretrained,
+        decoder_channels=(220, 120, 60, 30, 15),
+        norm=("batch", {"eps": 1e-3, "momentum": 0.1}),
+        act=("relu", {"inplace": True}),
+        dropout=0.0,
+        upsample="nontrainable",
+        interp_mode="bilinear",
+        is_pad=True,
+    )
