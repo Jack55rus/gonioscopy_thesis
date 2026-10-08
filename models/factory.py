@@ -14,11 +14,17 @@ AVAILABLE_MODELS = [
     "monai_flexible_unet_b0",
     "monai_flexible_unet_b1",
     "monai_flexible_unet_b4",
+    "monai_flexible_unet_b7",
+    "monai_swin_unetr",
 ]
 
 
 def _create_base_model():
     name = config.MODEL_NAME
+
+    if name == "monai_swin_unetr":
+        from models.monai_models import create_monai_swin_unetr
+        return create_monai_swin_unetr(config.NUM_CLASSES)
 
     if name == "tiny_unet":
         from models.tiny_unet import TinyUNet
@@ -79,6 +85,12 @@ def _create_base_model():
     if name == "monai_flexible_unet_b4":
         from models.monai_models import create_monai_flexible_unet_b4
         return create_monai_flexible_unet_b4(
+            config.NUM_CLASSES,
+            config.USE_PRETRAINED_WEIGHTS,
+        )
+    if name == "monai_flexible_unet_b7":
+        from models.monai_models import create_monai_flexible_unet_b7
+        return create_monai_flexible_unet_b7(
             config.NUM_CLASSES,
             config.USE_PRETRAINED_WEIGHTS,
         )

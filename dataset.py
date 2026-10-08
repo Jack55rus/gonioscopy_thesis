@@ -187,12 +187,12 @@ class JointTransform:
             for mask in masks
         ]
 
-        gray = np.asarray(image.convert("L"))
-        clahe = cv2.createCLAHE(
-            clipLimit=2.0,
-            tileGridSize=(8, 8),
-        ).apply(gray)
-        clahe = torch.from_numpy(clahe).float().unsqueeze(0) / 255.0
+        # gray = np.asarray(image.convert("L"))
+        # clahe = cv2.createCLAHE(
+        #     clipLimit=2.0,
+        #     tileGridSize=(8, 8),
+        # ).apply(gray)
+        # clahe = torch.from_numpy(clahe).float().unsqueeze(0) / 255.0
 
         image = TF.to_tensor(image)
         image = TF.normalize(
@@ -200,20 +200,49 @@ class JointTransform:
             mean=[0.485, 0.456, 0.406],
             std=[0.229, 0.224, 0.225],
         )
-        image = torch.cat([image, clahe], dim=0)
+        # image = torch.cat([image, clahe], dim=0)
 
         binary_masks = [
             np.asarray(mask) > 0
             for mask in masks
         ]
 
-        # Current project setting: PTM + NPTM -> one TM class.
-        tm_mask = np.logical_or(binary_masks[0], binary_masks[1])
+        tm_mask = np.logical_or(
+            binary_masks[0],
+            binary_masks[1],
+        )
 
-        target = np.zeros(tm_mask.shape, dtype=np.uint8)
+        target = np.zeros(
+            binary_masks[0].shape,
+            dtype=np.uint8,
+        )
+
+        # Auxiliary classes:
+        # 2 = cornea
+        # 3 = scleral spur
+        # 4 = iris root
+        # 5 = ciliary body band
+        # 6 = synechia
+        for class_id, mask in enumerate(
+                binary_masks[2:],
+                start=2,
+        ):
+            target[mask] = class_id
+
+        # Primary TM class wins if masks overlap
         target[tm_mask] = 1
 
-        return image, torch.from_numpy(target.astype(np.int64))
+        return image, torch.from_numpy(
+            target.astype(np.int64)
+        )
+
+        # # Current project setting: PTM + NPTM -> one TM class.
+        # tm_mask = np.logical_or(binary_masks[0], binary_masks[1])
+        #
+        # target = np.zeros(tm_mask.shape, dtype=np.uint8)
+        # target[tm_mask] = 1
+        #
+        # return image, torch.from_numpy(target.astype(np.int64))
 
 
 class TrabecularMeshworkDataset(Dataset):

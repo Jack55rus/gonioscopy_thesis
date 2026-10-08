@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, ConcatDataset
 from tqdm import tqdm
 
 import config
@@ -53,13 +53,29 @@ def main():
     set_seed(config.SEED)
     config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    training_dataset = TrabecularMeshworkDataset(
-        split=config.TRAIN_SPLIT,
-        training=True,
-    )
+    # training_dataset = TrabecularMeshworkDataset(
+    #     split=config.TRAIN_SPLIT,
+    #     training=True,
+    # )
+    #
+    # validation_dataset = TrabecularMeshworkDataset(
+    #     split=config.VAL_SPLIT,
+    #     training=False,
+    # )
+
+    training_dataset = ConcatDataset([
+        TrabecularMeshworkDataset(
+            split=config.TRAIN_SPLIT,
+            training=True,
+        ),
+        TrabecularMeshworkDataset(
+            split=config.VAL_SPLIT,
+            training=True,
+        ),
+    ])
 
     validation_dataset = TrabecularMeshworkDataset(
-        split=config.VAL_SPLIT,
+        split=config.TEST_SPLIT,
         training=False,
     )
 

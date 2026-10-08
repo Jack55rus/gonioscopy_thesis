@@ -76,27 +76,7 @@ USE_ONLY_PRIMARY_CLASSES = True
 #
 # PRIMARY_CLASS_NAMES = ["ptm", "nptm"]
 
-CLASS_DEFINITIONS = [
-    {
-        "name": "ptm",
-        "folder": "Pigmented Trabecular Meshwork",
-        "suffix": "_PTM",
-    },
-    {
-        "name": "nptm",
-        "folder": "Non-pigmented Trabecular Meshwork",
-        "suffix": "_NPTM",
-    },
-]
 
-CLASS_NAMES = [
-    "background",
-    "tm",
-]
-
-NUM_CLASSES = 2
-
-PRIMARY_CLASS_NAMES = ["tm"]
 
 ##
 
@@ -129,14 +109,16 @@ USE_PRETRAINED_WEIGHTS = True
 # MODEL_NAME = "monai_flexible_unet_b0"
 MODEL_NAME = "monai_flexible_unet_b1"
 # MODEL_NAME = "monai_flexible_unet_b4"
+# MODEL_NAME = "monai_flexible_unet_b7"
 # MODEL_NAME = "lraspp_mobilenet"
 # MODEL_NAME = "fast_scnn"
+# MODEL_NAME = "monai_swin_unetr"
 #####
 
 
 BASE_CHANNELS = 16 # 16
 
-BATCH_SIZE = 4
+BATCH_SIZE = 12
 NUM_WORKERS = 4
 EPOCHS = 100
 
@@ -152,10 +134,10 @@ EARLY_STOPPING_PATIENCE = 25
 # =========================
 # AUGMENTATION
 # =========================
-HORIZONTAL_FLIP_PROBABILITY = 0.5
-MAX_ROTATION_DEGREES = 8
-BRIGHTNESS_JITTER = 0.15
-CONTRAST_JITTER = 0.15
+# HORIZONTAL_FLIP_PROBABILITY = 0.5
+# MAX_ROTATION_DEGREES = 8
+# BRIGHTNESS_JITTER = 0.15
+# CONTRAST_JITTER = 0.15
 
 # =========================
 # OUTPUTS
@@ -193,14 +175,14 @@ METADATA_REFINER_CHANNELS = 32
 # Stronger but still anatomy-preserving augmentation.
 # Start here; ablate each group in the thesis.
 HORIZONTAL_FLIP_PROBABILITY = 0.5
-MAX_ROTATION_DEGREES = 50
-MAX_TRANSLATE_FRACTION = 0.04
-MAX_SCALE_JITTER = 0.10
-BRIGHTNESS_JITTER = 0.25
-CONTRAST_JITTER = 0.25
-SATURATION_JITTER = 0.15
-BLUR_PROBABILITY = 0.15
-MAX_BLUR_RADIUS = 1.2
+MAX_ROTATION_DEGREES = 180
+MAX_TRANSLATE_FRACTION = 0.08
+MAX_SCALE_JITTER = 0.30
+BRIGHTNESS_JITTER = 0.45
+CONTRAST_JITTER = 0.45
+SATURATION_JITTER = 0.35
+BLUR_PROBABILITY = 0.4
+MAX_BLUR_RADIUS = 1.6
 
 # For limited data + pretrained encoder:
 USE_PRETRAINED_WEIGHTS = True
@@ -209,5 +191,57 @@ USE_PRETRAINED_WEIGHTS = True
 LEARNING_RATE = 1e-4
 WEIGHT_DECAY = 5e-4
 
-INPUT_CHANNELS = 4
+INPUT_CHANNELS = 3
+
+
+CLASS_DEFINITIONS = [
+    {
+        "name": "ptm",
+        "folder": "Pigmented Trabecular Meshwork",
+        "suffix": "_PTM",
+    },
+    {
+        "name": "nptm",
+        "folder": "Non-pigmented Trabecular Meshwork",
+        "suffix": "_NPTM",
+    },
+    {
+        "name": "cornea",
+        "folder": "Cornea",
+        "suffix": "_C",
+    },
+    {
+        "name": "scleral_spur",
+        "folder": "Scleral Spur",
+        "suffix": "_SS",
+    },
+    {
+        "name": "iris_root",
+        "folder": "Iris Root",
+        "suffix": "_IR",
+    },
+    {
+        "name": "ciliary_body_band",
+        "folder": "Ciliary Body Band",
+        "suffix": "_CBB",
+    },
+    {
+        "name": "synechia",
+        "folder": "Synechia",
+        "suffix": "_SY",
+    },
+]
+
+CLASS_NAMES = [
+    "background",
+    "tm",
+    "cornea",
+    "scleral_spur",
+    "iris_root",
+    "ciliary_body_band",
+    "synechia",
+]
+
+NUM_CLASSES = len(CLASS_NAMES)
+PRIMARY_CLASS_NAMES = ["tm"]
 
