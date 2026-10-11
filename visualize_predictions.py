@@ -9,12 +9,12 @@ from dataset import TrabecularMeshworkDataset
 from model_forward import model_forward
 from models.factory import create_model
 from skimage.morphology import remove_small_objects, binary_erosion, disk
-
+from tqdm import tqdm
 
 TTA_MODES = [
     "none",
-    # "hflip",
-    # "vflip",
+    "hflip",
+    "vflip",
     "hvflip",
 ]
 
@@ -37,7 +37,7 @@ ENSEMBLE_MODELS = [
     # },
 ]
 
-OUTPUT_DIR = config.OUTPUT_DIR / "prediction_visualizations" / "ensemble_tta"
+OUTPUT_DIR = config.OUTPUT_DIR / "prediction_visualizations" / "ensemble_tta_test"
 NUMBER_OF_SAMPLES = 40
 TM_CLASS_ID = 1
 TM_THRESHOLD = 0.5
@@ -135,6 +135,35 @@ def load_ensemble(device):
     config.MODEL_NAME = original_model_name
     return models
 
+
+
+def calculate_bbox_iou_50_accuracy(prediction: np.ndarray, target: np.ndarray) -> float:
+    """One TM detection per image: enclosing bounding-box IoU >= 0.5."""
+    valid = target != config.IGNORE_INDEX
+    predicted_mask = (prediction == TM_CLASS_ID) & valid
+    target_mask = (target == TM_CLASS_ID) & valid
+
+    def bbox(mask):
+        ys, xs = np.nonzero(mask)
+        if xs.size == 0:
+            return None
+        return (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
+
+    predicted_box = bbox(predicted_mask)
+    target_box = bbox(target_mask)
+    if predicted_box is None or target_box is None:
+        return float(predicted_box is None and target_box is None)
+
+    x1 = max(predicted_box[0], target_box[0])
+    y1 = max(predicted_box[1], target_box[1])
+    x2 = min(predicted_box[2], target_box[2])
+    y2 = min(predicted_box[3], target_box[3])
+    intersection = max(0, x2 - x1) * max(0, y2 - y1)
+    pred_area = (predicted_box[2] - predicted_box[0]) * (predicted_box[3] - predicted_box[1])
+    gt_area = (target_box[2] - target_box[0]) * (target_box[3] - target_box[1])
+    box_iou = intersection / (pred_area + gt_area - intersection)
+    return float(box_iou >= 0.5)
+
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     dataset = TrabecularMeshworkDataset(
@@ -148,6 +177,7 @@ def main() -> None:
         num_workers=config.NUM_WORKERS,
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device('cpu')
     models = load_ensemble(device)
     saved = 0
     dices = []
@@ -157,10 +187,12 @@ def main() -> None:
     total_tn = 0
     correct_pred_dice_50 = 0
     correct_pred_iou_50 = 0
+    correct_pred_bbox_iou_50 = 0
     with torch.inference_mode():
-        for batch in loader:
+        for batch in tqdm(loader):
             image_tensor = batch["image"][0]
             target = batch["target"][0].numpy()
+            # metadata = batch['metadata'].to(device)
             name = batch["name"][0]
             model_probabilities = []
             for model in models:
@@ -187,11 +219,7 @@ def main() -> None:
                 prediction,
                 min_size=config.POSTPROCESS_MIN_OBJECT_SIZE,
             )
-            # fdf
-            # tm_mask = prediction == TM_CLASS_ID
-            # tm_mask = binary_erosion(tm_mask, footprint=disk(3))
-            # prediction = tm_mask.astype(np.uint8) * TM_CLASS_ID
-            # ff
+            correct_pred_bbox_iou_50 += calculate_bbox_iou_50_accuracy(prediction, target)
             dice = calculate_dice(prediction, target)
             if dice > 0.5:
                 correct_pred_dice_50 += 1
@@ -255,6 +283,7 @@ def main() -> None:
     total_dice = 2 * total_tp / (2 * total_tp + total_fp + total_fn) if 2 * total_tp + total_fp + total_fn > 0 else 1.0
     total_iou = total_tp / (total_tp + total_fp + total_fn) if total_tp + total_fp + total_fn > 0 else 1.0
     print(f"Mean per-image TM Dice: {np.mean(dices):.4f}")
+    print(f"Median per-image TM Dice: {np.median(dices):.4f}")
     print(f"Total TP: {total_tp}")
     print(f"Total FP: {total_fp}")
     print(f"Total FN: {total_fn}")
@@ -263,8 +292,9 @@ def main() -> None:
     print(f"Global Recall: {total_recall:.4f}")
     print(f"Global Dice: {total_dice:.4f}")
     print(f"Global IoU: {total_iou:.4f}")
-    print(f'Accuracy = {(correct_pred_dice_50 / len(dices)):.4f}')
-    print(f'Accuracy = {(correct_pred_iou_50 / len(dices)):.4f}')
+    print(f'Accuracy by dice at 50= {(correct_pred_dice_50 / len(dices)):.4f}')
+    print(f'Accuracy by iou at 50= {(correct_pred_iou_50 / len(dices)):.4f}')
+    print(f"BBox detection accuracy @ IoU 0.5= {correct_pred_bbox_iou_50 / len(dices):.4f}")
 
 if __name__ == "__main__":
     main()

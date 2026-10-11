@@ -107,8 +107,8 @@ USE_PRETRAINED_WEIGHTS = True
 # MODEL_NAME = "monai_basic_unet"
 # MODEL_NAME = "monai_segresnet"
 # MODEL_NAME = "monai_flexible_unet_b0"
-MODEL_NAME = "monai_flexible_unet_b1"
-# MODEL_NAME = "monai_flexible_unet_b4"
+# MODEL_NAME = "monai_flexible_unet_b1"
+MODEL_NAME = "monai_flexible_unet_b4"
 # MODEL_NAME = "monai_flexible_unet_b7"
 # MODEL_NAME = "lraspp_mobilenet"
 # MODEL_NAME = "fast_scnn"
@@ -118,7 +118,7 @@ MODEL_NAME = "monai_flexible_unet_b1"
 
 BASE_CHANNELS = 16 # 16
 
-BATCH_SIZE = 12
+BATCH_SIZE = 6 # 12
 NUM_WORKERS = 4
 EPOCHS = 100
 

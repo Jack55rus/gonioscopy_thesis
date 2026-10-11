@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gonioscopy · Performance Benchmark</title>
+  <style>
+    :root { --ink:#17263d; --muted:#66778d; --line:#e4eaf2; --blue:#2864cf; --bg:#f4f7fc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .page { max-width:1120px; margin:auto; padding:46px 26px 80px; }
+    .eyebrow { color:var(--blue); text-transform:uppercase; font-size:12px; font-weight:750; letter-spacing:.14em; }
+    h1 { font-size:clamp(30px,4vw,48px); letter-spacing:-.045em; line-height:1.12; margin:12px 0 14px; }
+    h2 { font-size:23px; letter-spacing:-.025em; margin:0 0 14px; }
+    h3 { font-size:16px; margin:0 0 12px; }
+    p { margin:9px 0 16px; }
+    .muted, .caption { color:var(--muted); }
+    .lead { max-width:800px; font-size:17px; }
+    .section { margin-top:34px; }
+    .panel, .metric { background:white; border:1px solid var(--line); border-radius:17px; padding:26px; box-shadow:0 6px 25px #19335408; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+    .metric .value { font-size:35px; line-height:1.2; font-weight:780; letter-spacing:-.04em; color:var(--blue); }
+    .metric .small { font-size:13px; color:var(--muted); }
+    .pill { display:inline-block; padding:4px 11px; border-radius:100px; background:#eaf1ff; color:#2056b5; font-size:12px; font-weight:700; }
+    .notice { border-left:4px solid var(--blue); padding:12px 18px; background:#e9f0ff; border-radius:0 10px 10px 0; margin-top:22px; }
+    .chart { display:block; max-width:100%; height:auto; margin:auto; }
+    .charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:18px; }
+    .scroll { overflow-x:auto; }
+    table { border-collapse:collapse; width:100%; min-width:550px; }
+    th, td { text-align:left; border-bottom:1px solid var(--line); padding:11px 13px; }
+    th { font-size:13px; color:#4a5b70; font-weight:720; }
+    tbody tr:last-child td, tbody tr:last-child th { border-bottom:0; }
+    .num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .footer { margin-top:35px; color:var(--muted); font-size:13px; }
+    @media print { body{background:white} .page{padding:0} .panel,.metric{break-inside:avoid;box-shadow:none} }
+  </style>
+</head>
+<body>
+<main class="page">
+  <div class="eyebrow">Research benchmark · Image segmentation</div>
+  <h1>How fast can the system<br>analyze a gonioscopy image?</h1>
+  <p class="lead muted">A readable comparison of CPU and GPU performance, including every processing stage and the accuracy of trabecular meshwork (TM) predictions.</p>
+  <p class="muted">Generated {{ generated }} · Batch size 1 · {{ results[0].n }} measured images per processor</p>
+
+  <section class="section">
+    <div class="grid">
+      {% for r in results %}
+      <div class="metric">
+        <span class="pill">{{ r.device }}</span>
+        <p class="value">{{ '%.1f'|format(r.summary.total.median) }} ms</p>
+        <p>Typical time per image</p>
+        <div class="small">{{ '%.2f'|format(1000 / r.summary.total.mean) }} images/second · 95th percentile {{ '%.1f'|format(r.summary.total.p95) }} ms</div>
+        {% if r.peak_gpu_mib is not none %}<div class="small">Peak allocated GPU memory: {{ '%.0f'|format(r.peak_gpu_mib) }} MiB</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% if speedup is not none %}<div class="notice">On this machine, the GPU processed images at approximately <strong>{{ '%.2f'|format(speedup) }}×</strong> the CPU speed, based on average per-image latency.</div>{% endif %}
+  </section>
+
+  <section class="section">
+    <h2>01 / Processing speed</h2>
+    <div class="charts">
+      <div class="panel"><h3>Images per second</h3><div class="chart">{{ throughput_chart|safe }}</div><p class="caption">Higher means more images can be processed in the same amount of time.</p></div>
+      <div class="panel"><h3>Consistency of response time</h3><div class="chart">{{ latency_chart|safe }}</div><p class="caption">The 95th percentile shows the time within which 95% of images were processed.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>02 / Where the time goes</h2>
+    <div class="panel">
+      <div class="chart">{{ breakdown_chart|safe }}</div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th rowspan="2">Stage</th>{% for r in results %}<th colspan="2">{{ r.device }}</th>{% endfor %}</tr><tr>{% for r in results %}<th>Average (ms)</th><th>95th pct. (ms)</th>{% endfor %}</tr></thead>
+          <tbody>
+          {% for stage in stages + ['total'] %}
+            <tr><th>{{ stage.replace('_',' ').title() }}</th>{% for r in results %}<td class="num">{{ '%.2f'|format(r.summary[stage].mean) }}</td><td class="num">{{ '%.2f'|format(r.summary[stage].p95) }}</td>{% endfor %}</tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">All values are milliseconds per image. GPU operations are synchronized to measure completed work, rather than just the time needed to queue operations.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>03 / What each stage means</h2>
+    <div class="panel scroll"><table><tbody>{% for stage in stages %}<tr><th>{{ stage.replace('_',' ').title() }}</th><td>{{ descriptions[stage] }}</td></tr>{% endfor %}</tbody></table>
+    <p class="caption">Test-time augmentation (TTA) means flipping the image and running the network again. Each extra orientation adds computational work.</p></div>
+  </section>
+
+  <section class="section">
+    <h2>04 / Prediction quality</h2>
+    <div class="panel scroll"><table><thead><tr><th>Metric</th>{% for r in results %}<th>{{ r.device }}</th>{% endfor %}</tr></thead><tbody>
+    {% for metric in ['Dice','IoU','Precision','Recall'] %}<tr><th>{{ metric }}</th>{% for r in results %}<td class="num">{{ '%.4f'|format(r.quality[metric]) }}</td>{% endfor %}</tr>{% endfor %}
+    </tbody></table>
+    <p><strong>Dice and IoU</strong> describe how much the predicted region overlaps the reference annotation. <strong>Precision</strong> indicates how often predicted TM pixels are correct. <strong>Recall</strong> indicates how much of the actual TM region was found.</p>
+    <p class="caption">These values measure segmentation overlap, not clinical diagnostic accuracy.</p></div>
+  </section>
+
+  <section class="section">
+    <h2>05 / Test configuration</h2>
+    <div class="panel">
+      <h3>Machine information</h3>
+      <div class="scroll"><table><tbody>{% for key,value in machine.items() %}<tr><th>{{ key }}</th><td>{{ value }}</td></tr>{% endfor %}</tbody></table></div>
+      <h3 style="margin-top:24px">Experiment settings</h3>
+      <div class="scroll"><table><tbody>
+        <tr><th>Networks</th><td>{{ models|map(attribute='name')|join(', ') }}</td></tr>
+        <tr><th>TTA orientations</th><td>{{ tta_modes|join(', ') }}</td></tr>
+        <tr><th>Dataset split</th><td>{{ split }}</td></tr>
+        <tr><th>TM probability threshold</th><td>{{ threshold }}</td></tr>
+        <tr><th>Minimum object size</th><td>{{ min_size }} pixels</td></tr>
+        <tr><th>Warm-up images</th><td>{{ warmup }} per processor (excluded)</td></tr>
+      </tbody></table></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>06 / How to interpret the results</h2>
+    <div class="panel">
+      <p>Neural-network inference is often the most expensive part of segmentation. Using more models or TTA orientations can improve predictions, but usually increases response time.</p>
+      <p>This is a <strong>single-image latency benchmark</strong>, not a maximum-throughput test. Model loading is excluded from per-image timing. Loading uses a single-worker DataLoader so preprocessing time can be measured directly. The reported total includes comparison with the ground truth, which is only needed for benchmarking.</p>
+      <p>Prediction visualizations and standalone plot files are not generated. The charts are embedded directly in this report.</p>
+    </div>
+  </section>
+  <p class="footer">Gonioscopy segmentation · Technical performance benchmark</p>
+</main>
+</body>
+</html>

@@ -29,7 +29,9 @@ def run_validation(model, data_loader, loss_function, device):
         for batch in tqdm(data_loader, desc="validation", leave=False):
             images = batch["image"].to(device)
             targets = batch["target"].to(device)
+            # metadata = batch['metadata'].to(device)
 
+            # logits = model(images, metadata)
             logits = model(images)
             loss = loss_function(logits, targets)
 
@@ -140,6 +142,7 @@ def main():
         for batch in progress_bar:
             images = batch["image"].to(device)
             targets = batch["target"].to(device)
+            # metadata = batch['metadata'].to(device)
 
             optimizer.zero_grad(set_to_none=True)
 
@@ -148,6 +151,7 @@ def main():
                 dtype=torch.float16,
                 enabled=use_amp,
             ):
+                # logits = model(images, metadata)
                 logits = model(images)
                 loss = loss_function(logits, targets)
 
