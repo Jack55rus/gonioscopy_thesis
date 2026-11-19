@@ -11,7 +11,8 @@ pip install torch monai numpy Pillow scikit-image
 
 Download the two weight files into one folder (e.g. `weights/`):
 `monai_flexible_unet_b1_best.pt` (35 MB) and `monai_flexible_unet_b4_best.pt` (85 MB).
-Download link: [TO ADD]
+Download link: https://drive.google.com/drive/folders/1CaIWB5j4dTlcAy3KeMngRbbJRhXthmZI?usp=sharing
+SHA-256: b1 `e295fe71b970253407f2d9a29fbe0377a7908c7473fe7218362ccc7931e36929`, b4 `7adb897c0250e7b0fb4fbd8323673a30b139593408145be010ffc3bb75417e9c`
 
 ## Run
 
