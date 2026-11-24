@@ -1,5 +1,16 @@
 # PTM / NPTM Segmentation Project
 
+## Thesis code, trained weights and inference
+
+This repository contains the code of the Master's thesis *Automatic Segmentation of the Trabecular Meshwork
+Using Deep Learning* (Evgenii Markin, University of Padova, 2026).
+
+- Code: https://github.com/Jack55rus/gonioscopy_thesis
+- Trained weights of the final ensemble (`monai_flexible_unet_b1_best.pt`, `monai_flexible_unet_b4_best.pt`):
+  https://drive.google.com/drive/folders/1CaIWB5j4dTlcAy3KeMngRbbJRhXthmZI?usp=sharing
+- To segment your own images with the final pipeline, see [INFERENCE.md](INFERENCE.md):
+  `python predict.py --weights-dir weights/ image.jpg --out results/`
+
 This is a normal Python project with no command-line arguments and no YAML.
 
 Edit only `config.py`, then run the scripts directly.
